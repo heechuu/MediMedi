@@ -1,0 +1,127 @@
+{
+  "project_info": {
+    "project_number": "920338155090",
+    "firebase_url": "https://ml-kit-codelab-cf589.firebaseio.com",
+    "project_id": "ml-kit-codelab-cf589",
+    "storage_bucket": "ml-kit-codelab-cf589.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:920338155090:android:add2dbe1dc47e2c80ec18b",
+        "android_client_info": {
+          "package_name": "com.example.medimedi"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "920338155090-8v23g87rfmvhmubfhi133jplg7pa9gpu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD68fiRH61mVuw26FRYBHFXcQEXg4VN2TQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "920338155090-8v23g87rfmvhmubfhi133jplg7pa9gpu.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:920338155090:android:9c7e251fbdaf5a5a0ec18b",
+        "android_client_info": {
+          "package_name": "com.example.medipoject"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "920338155090-8v23g87rfmvhmubfhi133jplg7pa9gpu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD68fiRH61mVuw26FRYBHFXcQEXg4VN2TQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "920338155090-8v23g87rfmvhmubfhi133jplg7pa9gpu.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:920338155090:android:b4f7e2701540ee280ec18b",
+        "android_client_info": {
+          "package_name": "com.example.ocrpictest"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "920338155090-8v23g87rfmvhmubfhi133jplg7pa9gpu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD68fiRH61mVuw26FRYBHFXcQEXg4VN2TQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "920338155090-8v23g87rfmvhmubfhi133jplg7pa9gpu.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:920338155090:android:9f1fa1c75cec5aad0ec18b",
+        "android_client_info": {
+          "package_name": "com.google.firebase.codelab.mlkit"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "920338155090-8v23g87rfmvhmubfhi133jplg7pa9gpu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD68fiRH61mVuw26FRYBHFXcQEXg4VN2TQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "920338155090-8v23g87rfmvhmubfhi133jplg7pa9gpu.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <TextView
+        android:id="@+id/IsConnected"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:background="#FF0000"
+        android:textColor="#FFF"
+        android:textSize="18dp"
+        android:layout_marginBottom="5dp"
+        android:text="is connected?" />
+
+    <ImageView
+        android:id="@+id/image_view"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_below="@id/IsConnected"/>
+
+
+
+    <TextView
+        android:id="@+id/text_display"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:text="텍스트 나오는 곳"
+        android:textSize="26dp"
+        android:maxLines="100"
+        android:layout_margin="10dp"
+        android:layout_below="@id/image_view"/>
+
+
+    <TextView
+        android:id="@+id/server_test_display"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:layout_below="@id/text_display"
+        android:textSize="26dp"
+        android:layout_margin="10dp"/>
+
+    <Button
+        android:id="@+id/capture_image_btn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Capture Image"
+        android:textAllCaps="false"
+        android:layout_above="@id/detect_text_image_btn"
+        android:background="@color/colorAccent"
+         />
+
+    <Button
+        android:id="@+id/detect_text_image_btn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        android:text="Detect Text"
+        android:textAllCaps="false"
+        android:layout_above="@id/server_test_btn"/>
+
+    <Button
+        android:id="@+id/server_test_btn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="server test"
+        android:textAllCaps="false"
+        android:layout_alignParentBottom="true"
+   />
+
+
+
+</RelativeLayout>
