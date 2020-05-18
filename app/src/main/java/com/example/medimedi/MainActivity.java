@@ -49,22 +49,24 @@ import java.util.List;
 public  class MainActivity extends AppCompatActivity {
 
     private ImageView imageView;
-    private Button captureImageBtn, detectTextBtn, serverBtn;
+    private Button captureImageBtn, detectTextBtn, serverBtn,pickImageBtn;
     public TextView textview, serverView, connection;
     private Bitmap imageBitmap;
     static final int REQUEST_IMAGE_CAPTURE = 672;
-    static final int REQUEST_TAKE_PHOTO = 1;
+    static final int PICK_IMAGE = 1;
+    static final String TAG = "MainActivity";
+
     //String currentPhotoPath;
     private Uri photoUri;
     private String imageFilePath,ocrtext;
     Medi medInfo;
-    static    String strJson = "";
+    static  String strJson = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        pickImageBtn= findViewById(R.id.gallery_image_btn);
         captureImageBtn = findViewById(R.id.capture_image_btn);
         detectTextBtn = findViewById(R.id.detect_text_image_btn);
         imageView = findViewById(R.id.image_view);
@@ -88,9 +90,17 @@ public  class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 dispatchTakePictureIntent();
                 //setPic();
-
             }
         });
+
+        //갤러리에서 사진 가져오기
+        pickImageBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                pickPictureInetent();
+            }
+        });
+
         //ocr로 텍스트 인식
         detectTextBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -148,7 +158,7 @@ public  class MainActivity extends AppCompatActivity {
 
             // OutputStream으로 POST 데이터를 넘겨주겠다는 옵션.
             httpCon.setDoOutput(true);
-           // InputStream으로 서버로 부터 응답을 받겠다는 옵션.
+            // InputStream으로 서버로 부터 응답을 받겠다는 옵션.
             httpCon.setDoInput(true);
 
             OutputStream os = httpCon.getOutputStream();
@@ -182,13 +192,11 @@ public  class MainActivity extends AppCompatActivity {
             finally {
                 httpCon.disconnect();
             }
-
         }
 
         catch (IOException e) {
 
             e.printStackTrace();
-
         }
 
         catch (Exception e) {
@@ -243,7 +251,6 @@ public  class MainActivity extends AppCompatActivity {
                     }
                 }
             });
-
         }
     }
 
@@ -266,12 +273,12 @@ public  class MainActivity extends AppCompatActivity {
 
     }
 
-/*서버연동 끝*/
+    /*서버연동 끝*/
 
     //카메라에서 원본크기로 사진 찍기
     private void dispatchTakePictureIntent() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        // Ensure that there's a camera activity to handle the intent
+
         if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
             // Create the File where the photo should go
             File photoFile = null;
@@ -279,53 +286,103 @@ public  class MainActivity extends AppCompatActivity {
                 photoFile = createImageFile();
             } catch (IOException ex) {
                 // Error occurred while creating the File
-                //ex.printStackTrace();
+                Toast.makeText(this,"사진찍기 실패", Toast.LENGTH_LONG).show();
+                ex.printStackTrace();
             }
             // Continue only if the File was successfully created
             if (photoFile != null) {
                 photoUri = FileProvider.getUriForFile(this,
-                        getPackageName(),
-                        photoFile);
+                        "com.example.medimedi", photoFile);
+
+                galleryAddPic();
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
                 startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
             }
         }
     }
 
+    //갤러리에서 사진 가져오기
+    private void pickPictureInetent() {
+
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("image/*"); //이미지만 보이게
+        //Intent 시작 - 갤러리앱을 열어서 원하는 이미지를 선택할 수 있다.
+        startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE);
+    }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
-            //Bundle extras = data.getExtras();
-            //imageBitmap = (Bitmap) extras.get("data");
-            //imageBitmap.setImageBitmap(imageBitmap);
+        ExifInterface exif = null;
+        int exifOrientation;
+        int exifDegree;
 
-            Bitmap bitmap = BitmapFactory.decodeFile(imageFilePath);
-            ExifInterface exif = null;
+        switch (requestCode) {
+            case REQUEST_IMAGE_CAPTURE:
+            if (resultCode == RESULT_OK) {
+                Bitmap bitmap = BitmapFactory.decodeFile(imageFilePath);
 
-            try {
-                exif = new ExifInterface(imageFilePath);
-            } catch (IOException e) {
-                e.printStackTrace();
+                try {
+                    exif = new ExifInterface(imageFilePath);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                if (exif != null) {
+                    exifOrientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+                    exifDegree = exifOrientationToDegrees(exifOrientation);
+                } else {
+                    exifDegree = 0;
+                }
+
+                imageBitmap = rotate(bitmap, exifDegree);
+                imageView.setImageBitmap(imageBitmap);
             }
+            break;
 
-            int exifOrientation;
-            int exifDegree;
+            //앨범에서 사진골라라
+           case PICK_IMAGE:
+                if (resultCode == RESULT_OK && null != data){
+                //data에서 절대경로로 이미지를 가져옴
 
-            if (exif != null) {
-                exifOrientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
-                exifDegree = exifOrientationToDegrees(exifOrientation);
-            } else {
-                exifDegree = 0;
-            }
+                    Uri uri = data.getData();
+                    String filepath =MediaStore.Images.Media.DATA;
+                    Bitmap bitmap = BitmapFactory.decodeFile(filepath);
 
-            imageBitmap =rotate(bitmap, exifDegree);
+                    //Bitmap bitmap = null;
+                    try {
+                        bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(),uri);
+                        exif = new ExifInterface(filepath);
 
-            ((ImageView) findViewById(R.id.image_view)).setImageBitmap(imageBitmap);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+
+                    //이미지가 한계이상(?) 크면 불러 오지 못하므로 사이즈를 줄여 준다.
+                  //  int nh = (int) (bitmap.getHeight() * (1024.0 / bitmap.getWidth()));
+                    //Bitmap scaled = Bitmap.createScaledBitmap(bitmap, 1024, nh, true);
+
+                    if (exif != null) {
+                        exifOrientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+                        exifDegree = exifOrientationToDegrees(exifOrientation);
+                    } else {
+                        exifDegree = 0;
+                    }
+
+                    imageBitmap = rotate(bitmap, exifDegree);
+                    imageView.setImageBitmap(bitmap);
+
+                } else {
+                    Toast.makeText(this, "취소 되었습니다.", Toast.LENGTH_LONG).show();
+                }
+
         }
+
     }
 
+
+    //사진 회전하여 올바르게 보이도록
     private int exifOrientationToDegrees(int exifOrientation) {
 
         if (exifOrientation == ExifInterface.ORIENTATION_ROTATE_90) {
@@ -343,7 +400,7 @@ public  class MainActivity extends AppCompatActivity {
         return Bitmap.createBitmap(Bitmap, 0, 0, Bitmap.getWidth(), Bitmap.getHeight(), matrix, true);
     }
 
-
+    //사진 파일이름 생성
     private File createImageFile() throws IOException {
         // Create an image file name
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
@@ -360,6 +417,15 @@ public  class MainActivity extends AppCompatActivity {
         return image;
     }
 
+    //사진 갤러리에 추가하기
+    private void galleryAddPic() {
+        Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+        File f = new File(imageFilePath);
+        Uri contentUri = Uri.fromFile(f);
+        mediaScanIntent.setData(contentUri);
+        this.sendBroadcast(mediaScanIntent);
+        //Toast.makeText(this, "사진이 앨범에 저장되었습니다.", Toast.LENGTH_SHORT).show();
+    }
 
     //사진크기 리사이징(선택)
     private void setPic() {
@@ -426,11 +492,9 @@ public  class MainActivity extends AppCompatActivity {
         {
             for (FirebaseVisionDocumentText.Block block : firebaseVisionText.getBlocks())
             {
-                 ocrtext = block.getText();
+                ocrtext = block.getText();
                 textview.setText(ocrtext);
             }
         }
     }
-
-
 }

@@ -48,18 +48,27 @@
         android:id="@+id/capture_image_btn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Capture Image"
+        android:text="사진 촬영"
+        android:textAllCaps="false"
+        android:layout_above="@id/gallery_image_btn"
+        android:background="@color/colorAccent"
+         />
+
+    <Button
+        android:id="@+id/gallery_image_btn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="갤러리에서 불러오기"
         android:textAllCaps="false"
         android:layout_above="@id/detect_text_image_btn"
         android:background="@color/colorAccent"
-         />
+        />
 
     <Button
         android:id="@+id/detect_text_image_btn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-
-        android:text="Detect Text"
+        android:text="OCR로 텍스트 찾기"
         android:textAllCaps="false"
         android:layout_above="@id/server_test_btn"/>
 
@@ -67,7 +76,7 @@
         android:id="@+id/server_test_btn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="server test"
+        android:text="서버 연동"
         android:textAllCaps="false"
         android:layout_alignParentBottom="true"
    />
