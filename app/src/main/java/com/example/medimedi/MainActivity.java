@@ -3,6 +3,8 @@ import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.ColorMatrix;
+import android.graphics.ColorMatrixColorFilter;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.net.ConnectivityManager;
@@ -120,7 +122,7 @@ public  class MainActivity extends AppCompatActivity {
                         else {
                             // call AsynTask to perform network operation on separate thread
                             HttpAsyncTask httpTask = new HttpAsyncTask(MainActivity.this);
-                            httpTask.execute("http://13.209.98.77:3000/api", ocrtext.toString());
+                            httpTask.execute("http://13.209.4.83:3000/api", ocrtext.toString());
                         }
                         break;
                 }
@@ -297,6 +299,7 @@ public  class MainActivity extends AppCompatActivity {
                 galleryAddPic();
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
                 startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+
             }
         }
     }
@@ -318,6 +321,7 @@ public  class MainActivity extends AppCompatActivity {
         int exifDegree;
 
         switch (requestCode) {
+            //사진찍기
             case REQUEST_IMAGE_CAPTURE:
             if (resultCode == RESULT_OK) {
                 Bitmap bitmap = BitmapFactory.decodeFile(imageFilePath);
@@ -335,8 +339,15 @@ public  class MainActivity extends AppCompatActivity {
                     exifDegree = 0;
                 }
 
+                //그레이스케일 변환
+                ColorMatrix matrix = new ColorMatrix();
+                matrix.setSaturation(0);
+                ColorMatrixColorFilter filter = new ColorMatrixColorFilter(matrix);
+
                 imageBitmap = rotate(bitmap, exifDegree);
                 imageView.setImageBitmap(imageBitmap);
+
+                imageView.setColorFilter(filter);
             }
             break;
 
@@ -358,7 +369,6 @@ public  class MainActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
 
-
                     //이미지가 한계이상(?) 크면 불러 오지 못하므로 사이즈를 줄여 준다.
                   //  int nh = (int) (bitmap.getHeight() * (1024.0 / bitmap.getWidth()));
                     //Bitmap scaled = Bitmap.createScaledBitmap(bitmap, 1024, nh, true);
@@ -370,8 +380,15 @@ public  class MainActivity extends AppCompatActivity {
                         exifDegree = 0;
                     }
 
+                    //그레이스케일 변환
+                    ColorMatrix matrix = new ColorMatrix();
+                    matrix.setSaturation(0);
+                    ColorMatrixColorFilter filter = new ColorMatrixColorFilter(matrix);
+
                     imageBitmap = rotate(bitmap, exifDegree);
                     imageView.setImageBitmap(bitmap);
+
+                    imageView.setColorFilter(filter);
 
                 } else {
                     Toast.makeText(this, "취소 되었습니다.", Toast.LENGTH_LONG).show();
