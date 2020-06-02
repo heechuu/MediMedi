@@ -1,6 +1,7 @@
 package com.example.medimedi;
 import android.app.Activity;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.ColorMatrix;
@@ -31,6 +32,8 @@ import com.google.firebase.ml.vision.FirebaseVision;
 import com.google.firebase.ml.vision.common.FirebaseVisionImage;
 import com.google.firebase.ml.vision.document.FirebaseVisionDocumentText;
 import com.google.firebase.ml.vision.document.FirebaseVisionDocumentTextRecognizer;
+import com.google.firebase.ml.vision.text.FirebaseVisionText;
+import com.google.firebase.ml.vision.text.FirebaseVisionTextRecognizer;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -51,7 +54,7 @@ import java.util.List;
 public  class MainActivity extends AppCompatActivity {
 
     private ImageView imageView;
-    private Button captureImageBtn, detectTextBtn, serverBtn,pickImageBtn;
+    private Button captureImageBtn, detectTextBtn, serverBtn, pickImageBtn;
     public TextView textview, serverView, connection;
     private Bitmap imageBitmap;
     static final int REQUEST_IMAGE_CAPTURE = 672;
@@ -60,31 +63,31 @@ public  class MainActivity extends AppCompatActivity {
 
     //String currentPhotoPath;
     private Uri photoUri;
-    private String imageFilePath,ocrtext;
+    private String imageFilePath;
+    private final FirebaseVisionDocumentText.Word ocrtext = null;
     Medi medInfo;
-    static  String strJson = "";
+    static String strJson = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        pickImageBtn= findViewById(R.id.gallery_image_btn);
+        pickImageBtn = findViewById(R.id.gallery_image_btn);
         captureImageBtn = findViewById(R.id.capture_image_btn);
         detectTextBtn = findViewById(R.id.detect_text_image_btn);
         imageView = findViewById(R.id.image_view);
         textview = findViewById(R.id.text_display);
         serverBtn = findViewById(R.id.server_test_btn);
-        serverView =  findViewById(R.id.server_test_display);
-        connection = findViewById(R.id.IsConnected);
+        serverView = findViewById(R.id.server_test_display);
+        // connection = findViewById(R.id.IsConnected);
 
         // 와이파이 연결 확인
-        if(isConnected()){
+       /* if (isConnected()) {
             connection.setBackgroundColor(0xFF00CC00);
             connection.setText("You are conncted");
-        }
-        else{
+        } else {
             connection.setText("You are NOT conncted");
-        }
+        }*/
 
         //카메라에서 사진찍기
         captureImageBtn.setOnClickListener(new View.OnClickListener() {
@@ -115,14 +118,14 @@ public  class MainActivity extends AppCompatActivity {
         serverBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                switch(v.getId()){
+                switch (v.getId()) {
                     case R.id.server_test_btn:
-                        if(!validate())
+                        if (!validate())
                             Toast.makeText(getBaseContext(), "Enter some data!", Toast.LENGTH_LONG).show();
                         else {
                             // call AsynTask to perform network operation on separate thread
                             HttpAsyncTask httpTask = new HttpAsyncTask(MainActivity.this);
-                            httpTask.execute("http://13.209.4.83:3000/api", ocrtext.toString());
+                            httpTask.execute("http://3.34.97.201:3000/api", ocrtext.toString());
                         }
                         break;
                 }
@@ -132,7 +135,7 @@ public  class MainActivity extends AppCompatActivity {
     }
 
     /*HttpURLConnection로 서버와 연동, 결과 텍스트 json POST로 보내기*/
-    public static String POST(String url, Medi meditext){
+    public static String POST(String url, Medi meditext) {
 
         InputStream is = null;
 
@@ -142,7 +145,7 @@ public  class MainActivity extends AppCompatActivity {
 
             URL urlCon = new URL(url);
 
-            HttpURLConnection httpCon = (HttpURLConnection)urlCon.openConnection();
+            HttpURLConnection httpCon = (HttpURLConnection) urlCon.openConnection();
 
             String json = "";
 
@@ -177,7 +180,7 @@ public  class MainActivity extends AppCompatActivity {
 
                 // convert inputstream to string
 
-                if(is != null)
+                if (is != null)
 
                     result = convertInputStreamToString(is);
 
@@ -185,23 +188,15 @@ public  class MainActivity extends AppCompatActivity {
 
                     result = "Did not work!";
 
-            }
-
-            catch (IOException e) {
+            } catch (IOException e) {
                 e.printStackTrace();
-            }
-
-            finally {
+            } finally {
                 httpCon.disconnect();
             }
-        }
-
-        catch (IOException e) {
+        } catch (IOException e) {
 
             e.printStackTrace();
-        }
-
-        catch (Exception e) {
+        } catch (Exception e) {
 
             Log.d("InputStream", e.getLocalizedMessage());
 
@@ -210,7 +205,7 @@ public  class MainActivity extends AppCompatActivity {
         return result;
     }
 
-    public boolean isConnected(){
+    public boolean isConnected() {
         ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Activity.CONNECTIVITY_SERVICE);
 
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
@@ -223,11 +218,12 @@ public  class MainActivity extends AppCompatActivity {
 
     private class HttpAsyncTask extends AsyncTask<String, Void, String> {
 
-        private   MainActivity mainAct;
+        private MainActivity mainAct;
 
         HttpAsyncTask(MainActivity mainActivity) {
             this.mainAct = mainActivity;
         }
+
         @Override
         protected String doInBackground(String... urls) {
 
@@ -236,6 +232,7 @@ public  class MainActivity extends AppCompatActivity {
 
             return POST(urls[0], medInfo);
         }
+
         // onPostExecute displays the results of the AsyncTask.
         @Override
         protected void onPostExecute(String result) {
@@ -256,18 +253,19 @@ public  class MainActivity extends AppCompatActivity {
         }
     }
 
-    private boolean validate(){
-        if(textview.toString().trim().equals(""))
+    private boolean validate() {
+        if (textview.toString().trim().equals(""))
             return false;
 
         else
             return true;
     }
-    private static String convertInputStreamToString(InputStream inputStream) throws IOException{
-        BufferedReader bufferedReader = new BufferedReader( new InputStreamReader(inputStream));
+
+    private static String convertInputStreamToString(InputStream inputStream) throws IOException {
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
         String line = "";
         String result = "";
-        while((line = bufferedReader.readLine()) != null)
+        while ((line = bufferedReader.readLine()) != null)
             result += line;
 
         inputStream.close();
@@ -288,7 +286,7 @@ public  class MainActivity extends AppCompatActivity {
                 photoFile = createImageFile();
             } catch (IOException ex) {
                 // Error occurred while creating the File
-                Toast.makeText(this,"사진찍기 실패", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "사진찍기 실패", Toast.LENGTH_LONG).show();
                 ex.printStackTrace();
             }
             // Continue only if the File was successfully created
@@ -308,61 +306,65 @@ public  class MainActivity extends AppCompatActivity {
     private void pickPictureInetent() {
 
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setData(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
         intent.setType("image/*"); //이미지만 보이게
         //Intent 시작 - 갤러리앱을 열어서 원하는 이미지를 선택할 수 있다.
         startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE);
     }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        ExifInterface exif = null;
+
         int exifOrientation;
         int exifDegree;
 
         switch (requestCode) {
             //사진찍기
             case REQUEST_IMAGE_CAPTURE:
-            if (resultCode == RESULT_OK) {
-                Bitmap bitmap = BitmapFactory.decodeFile(imageFilePath);
+                if (resultCode == RESULT_OK) {
+                    Bitmap bitmap = BitmapFactory.decodeFile(imageFilePath);
+                    ExifInterface exif = null;
 
-                try {
-                    exif = new ExifInterface(imageFilePath);
-                } catch (IOException e) {
-                    e.printStackTrace();
+                    try {
+                        exif = new ExifInterface(imageFilePath);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                    if (exif != null) {
+                        exifOrientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+                        exifDegree = exifOrientationToDegrees(exifOrientation);
+                    } else {
+                        exifDegree = 0;
+                    }
+
+                    //그레이스케일 변환
+                    ColorMatrix matrix = new ColorMatrix();
+                    matrix.setSaturation(0);
+                    ColorMatrixColorFilter filter = new ColorMatrixColorFilter(matrix);
+
+                    imageBitmap = rotate(bitmap, exifDegree);
+                    imageView.setImageBitmap(imageBitmap);
+
+                    imageView.setColorFilter(filter);
                 }
-
-                if (exif != null) {
-                    exifOrientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
-                    exifDegree = exifOrientationToDegrees(exifOrientation);
-                } else {
-                    exifDegree = 0;
-                }
-
-                //그레이스케일 변환
-                ColorMatrix matrix = new ColorMatrix();
-                matrix.setSaturation(0);
-                ColorMatrixColorFilter filter = new ColorMatrixColorFilter(matrix);
-
-                imageBitmap = rotate(bitmap, exifDegree);
-                imageView.setImageBitmap(imageBitmap);
-
-                imageView.setColorFilter(filter);
-            }
-            break;
+                break;
 
             //앨범에서 사진골라라
-           case PICK_IMAGE:
-                if (resultCode == RESULT_OK && null != data){
-                //data에서 절대경로로 이미지를 가져옴
+            case PICK_IMAGE:
+                if (resultCode == RESULT_OK && null != data) {
+                    //data에서 절대경로로 이미지를 가져옴
 
                     Uri uri = data.getData();
-                    String filepath =MediaStore.Images.Media.DATA;
+                    String filepath = MediaStore.Images.Media.DATA;
+                    ExifInterface exif = null;
                     Bitmap bitmap = BitmapFactory.decodeFile(filepath);
 
                     //Bitmap bitmap = null;
                     try {
-                        bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(),uri);
+                        bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
                         exif = new ExifInterface(filepath);
 
                     } catch (IOException e) {
@@ -370,7 +372,7 @@ public  class MainActivity extends AppCompatActivity {
                     }
 
                     //이미지가 한계이상(?) 크면 불러 오지 못하므로 사이즈를 줄여 준다.
-                  //  int nh = (int) (bitmap.getHeight() * (1024.0 / bitmap.getWidth()));
+                    //  int nh = (int) (bitmap.getHeight() * (1024.0 / bitmap.getWidth()));
                     //Bitmap scaled = Bitmap.createScaledBitmap(bitmap, 1024, nh, true);
 
                     if (exif != null) {
@@ -389,6 +391,7 @@ public  class MainActivity extends AppCompatActivity {
                     imageView.setImageBitmap(bitmap);
 
                     imageView.setColorFilter(filter);
+                    // sendPicture(data.getData());
 
                 } else {
                     Toast.makeText(this, "취소 되었습니다.", Toast.LENGTH_LONG).show();
@@ -398,6 +401,45 @@ public  class MainActivity extends AppCompatActivity {
 
     }
 
+
+    private void sendPicture(Uri imgUri) {
+
+
+        String imagePath = MediaStore.Images.Media.DATA; // path 경로
+        ExifInterface exif = null;
+        try {
+            exif = new ExifInterface(imagePath);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        int exifOrientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+        int exifDegree = exifOrientationToDegrees(exifOrientation);
+
+        Bitmap bitmap = BitmapFactory.decodeFile(imagePath);//경로를 통해 비트맵으로 전환
+        imageBitmap = rotate(bitmap, exifDegree);
+        imageView.setImageBitmap(bitmap);//이미지 뷰에 비트맵 넣기
+
+        //그레이스케일 변환
+        ColorMatrix matrix = new ColorMatrix();
+        matrix.setSaturation(0);
+        ColorMatrixColorFilter filter = new ColorMatrixColorFilter(matrix);
+
+        imageView.setColorFilter(filter);
+
+    }
+
+
+    //사진 절대 경로 구하기
+    private String getRealPathFromURI(Uri contentUri) {
+        int column_index = 0;
+        String[] proj = {MediaStore.Images.Media.DATA};
+        Cursor cursor = getContentResolver().query(contentUri, proj, null, null, null);
+        if (cursor.moveToFirst()) {
+            column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+        }
+
+        return cursor.getString(column_index);
+    }
 
     //사진 회전하여 올바르게 보이도록
     private int exifOrientationToDegrees(int exifOrientation) {
@@ -411,6 +453,7 @@ public  class MainActivity extends AppCompatActivity {
         }
         return 0;
     }
+
     private Bitmap rotate(Bitmap Bitmap, float degree) {
         Matrix matrix = new Matrix();
         matrix.postRotate(degree);
@@ -458,7 +501,7 @@ public  class MainActivity extends AppCompatActivity {
         int photoH = bmOptions.outHeight;
 
         // Determine how much to scale down the image
-        int scaleFactor = Math.min(100/10, 100/10);
+        int scaleFactor = Math.min(100 / 10, 100 / 10);
 
         // Decode the image file into a Bitmap sized to fill the View
         bmOptions.inJustDecodeBounds = false;
@@ -479,8 +522,7 @@ public  class MainActivity extends AppCompatActivity {
         firebaseVisionTextRecognizer.processImage(firebaseVisionImage)
                 .addOnSuccessListener(new OnSuccessListener<FirebaseVisionDocumentText>() {
                     @Override
-                    public void onSuccess(FirebaseVisionDocumentText firebaseVisionText)
-                    {
+                    public void onSuccess(FirebaseVisionDocumentText firebaseVisionText) {
                         displayTextFromImage(firebaseVisionText);
                     }
                 })
@@ -496,22 +538,42 @@ public  class MainActivity extends AppCompatActivity {
     }
 
     //텍스트 추출 후 결과 보여주기
-    private void displayTextFromImage(FirebaseVisionDocumentText firebaseVisionText)
-    {
+    private void displayTextFromImage(FirebaseVisionDocumentText text) {
 
-        List<FirebaseVisionDocumentText.Block> blockList = firebaseVisionText.getBlocks();
-        if (blockList.size() == 0)
-        {
-            Toast.makeText(this,"No text found", Toast.LENGTH_SHORT);
+        //  mGraphicOverlay.clear();
+        // List<FirebaseVisionDocumentText.Word> words = text.getWords();
 
+
+        if (text == null) {
+            Toast.makeText(this, "No text found", Toast.LENGTH_SHORT);
+            return;
         }
-        else
-        {
-            for (FirebaseVisionDocumentText.Block block : firebaseVisionText.getBlocks())
+          /*  for (FirebaseVisionDocumentText.Block block : text.getBlocks()) {
             {
                 ocrtext = block.getText();
                 textview.setText(ocrtext);
+            }*/
+
+        List<FirebaseVisionDocumentText.Block> blocks = text.getBlocks();
+        for (int i = 0; i < blocks.size(); i++) {
+            List<FirebaseVisionDocumentText.Paragraph> paragraphs = blocks.get(i).getParagraphs();
+            for (int j = 0; j < paragraphs.size(); j++) {
+                List<FirebaseVisionDocumentText.Word> words = paragraphs.get(j).getWords();
+
+                for (int l = 0; l < words.size(); l++) {
+
+                        StringBuilder ocrtext = new StringBuilder();
+                        ocrtext.append(words.get(l).getText());
+                        textview.setText(textview.getText().toString() +"\t"+ ocrtext);
+                    }
+                }
             }
+
+
         }
     }
-}
+
+
+
+
+
