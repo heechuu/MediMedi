@@ -17,7 +17,7 @@ API : Google Cloud Vision API, KoNLPy mecab, 공공데이터포털 ‘의약품 
  카메라 촬영) 사진 속 텍스트를 OCR API로 인식후 KoNLPy mecab으로 의약품명 추출 후 의약품 검색 데이터베이스에서 필요한 정보 제공
  사용자 입력 방식) 텍스트 인식 안되는 의약품은 사용자가 직접 검색 후 서버로 전송
 
-- 검색 기록 저장 기능 : 검색 기록을 저장,거 저장 내용 확인
+- 검색 기록 저장 기능 : 검색 기록을 저장 및 확인
 
 - 흐름도
 <img width="445" alt="스크린샷 2024-09-06 오후 1 48 58" src="https://github.com/user-attachments/assets/5627cbdf-0d39-4008-8f83-26f4580b084c">
