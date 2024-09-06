@@ -1,5 +1,10 @@
 [일반의약품 검색을 위한 OCR 기반 모바일 어플리케이션]
 
+- 프로젝트 소개
+
+![MediMedi팀 졸업포스터_page-0001](https://github.com/user-attachments/assets/3384add9-0e00-4d99-bc63-4dafa58c6730)
+
+
 1. 개발기간 : 2020.1월~2022.11월
 2. 담당
    - 정희수: 기획 및 프론트엔드(안드로이드), 허정민: 백엔드(서버)
@@ -17,6 +22,3 @@ API : Google Cloud Vision API, KoNLPy mecab, 공공데이터포털 ‘의약품 
 - 흐름도
 <img width="445" alt="스크린샷 2024-09-06 오후 1 48 58" src="https://github.com/user-attachments/assets/5627cbdf-0d39-4008-8f83-26f4580b084c">
 
-- 프로젝트 소개
-
-![MediMedi팀 졸업포스터_page-0001](https://github.com/user-attachments/assets/3384add9-0e00-4d99-bc63-4dafa58c6730)
